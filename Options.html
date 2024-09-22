@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 1000vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+        .login-icon {
+            cursor: pointer;
+            font-size: 100px;
+            color: #333;
+        }
+        .form-container, .options-container, .parameters-container {
+            display: none; /* Hidden by default */
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .form-container label, .parameters-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .form-container input, .parameters-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .form-container button, .parameters-container button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-container button:hover, .parameters-container button:hover {
+            background-color: #45a049;
+        }
+        .options-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px; /* Space between options */
+            margin-top: 20px;
+        }
+        .option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 20px;
+            border: 2px solid #007BFF;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+            width: 120px; /* Width of each option container */
+            text-align: center;
+            background-color: white;
+        }
+        .option:hover {
+            background-color: #e7f3ff; /* Light blue on hover */
+        }
+        .option i {
+            font-size: 50px; /* Icon size */
+            color: #007BFF; /* Icon color */
+            margin-bottom: 10px; /* Space between icon and text */
+        }
+    </style>
+</head>
+<body>
+
+<i class="fas fa-user-lock login-icon" title="Login" onclick="toggleForm()"></i>
+
+<div class="form-container" id="loginForm">
+    <h2>Login</h2>
+    <label for="name">Name:</label>
+    <input type="text" id="name" placeholder="Enter your name" required>
+
+    <label for="id">ID:</label>
+    <input type="text" id="id" placeholder="Enter your ID" required>
+
+    <label for="hospital">Hospital Name:</label>
+    <input type="text" id="hospital" placeholder="Enter hospital name" required>
+
+    <button onclick="submitForm()">Submit</button>
+</div>
+
+<div class="options-container" id="optionsContainer">
+    <h2>Choose an Option</h2>
+    <div class="option" onclick="showParameters('three')">
+        <i class="fas fa-heartbeat"></i>
+        <span>3 Parameters</span>
+    </div>
+    <div class="option" onclick="showParameters('five')">
+        <i class="fas fa-notes-medical"></i>
+        <span>5 Parameters</span>
+    </div>
+</div>
+
+<div class="parameters-container" id="parametersContainer" style="display: none;">
+    <h2 id="paramsTitle"></h2>
+    <div id="paramsInputs"></div>
+    <button onclick="submitParameters()">Submit Parameters</button>
+</div>
+
+<script>
+    function toggleForm() {
+        const form = document.getElementById('loginForm');
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function submitForm() {
+        const name = document.getElementById('name').value;
+        const id = document.getElementById('id').value;
+        const hospital = document.getElementById('hospital').value;
+
+        if (name && id && hospital) {
+            alert(`Name: ${name}\nID: ${id}\nHospital Name: ${hospital}`);
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('optionsContainer').style.display = 'flex'; // Show options as flex
+        } else {
+            alert('Please fill in all fields.');
+        }
+    }
+
+    function showParameters(option) {
+        const title = document.getElementById('paramsTitle');
+        const inputs = document.getElementById('paramsInputs');
+        inputs.innerHTML = ''; // Clear previous inputs
+
+        if (option === 'three') {
+            title.textContent = 'Enter 3 Parameters';
+            const params = ['ECG', 'SpO2', 'RESP'];
+            params.forEach(param => {
+                inputs.innerHTML += `<label for="${param}">${param}:</label>
+                                     <input type="text" id="${param}" placeholder="Enter ${param}" required>`;
+            });
+            downloadSensorCode(option); // Trigger download
+        } else if (option === 'five') {
+            title.textContent = 'Enter 5 Parameters';
+            const params = ['ECG', 'SpO2', 'RESP', 'NIBP', 'Temp'];
+            params.forEach(param => {
+                inputs.innerHTML += `<label for="${param}">${param}:</label>
+                                     <input type="text" id="${param}" placeholder="Enter ${param}" required>`;
+            });
+            downloadSensorCode(option); // Trigger download
+        }
+
+        document.getElementById('optionsContainer').style.display = 'none';
+        document.getElementById('parametersContainer').style.display = 'block';
+    }
+
+    function downloadSensorCode(option) {
+        let code;
+        if (option === 'three') {
+            code = `// Code for e-Health Sensor Kit (3 Parameters)\n
+#include <HealthSensor.h>\n
+void setup() {\n
+    Serial.begin(9600);\n
+    // Initialize sensors\n
+}\n
+void loop() {\n
+    // Read data from ECG, SpO2, RESP\n
+    // Print data to Serial\n
+}`;
+            downloadFile('eHealth_3Params.ino', code);
+        } else if (option === 'five') {
+            code = `// Code for e-Health Sensor Kit (5 Parameters)\n
+#include <HealthSensor.h>\n
+void setup() {\n
+    Serial.begin(9600);\n
+    // Initialize sensors\n
+}\n
+void loop() {\n
+    // Read data from ECG, SpO2, RESP, NIBP, Temp\n
+    // Print data to Serial\n
+}`;
+            downloadFile('eHealth_5Params.ino', code);
+        }
+    }
+
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function submitParameters() {
+        const numberOfParams = document.getElementById('paramsTitle').textContent.includes('3') ? 3 : 5;
+        let paramsValues = '';
+
+        for (let i = 0; i < numberOfParams; i++) {
+            const param = i === 0 ? 'ECG' : i === 1 ? 'SpO2' : i === 2 ? 'RESP' : i === 3 ? 'NIBP' : 'Temp';
+            const paramValue = document.getElementById(param).value;
+            if (!paramValue) {
+                alert('Please fill in all parameters.');
+                return;
+            }
+            paramsValues += `${param}: ${paramValue}\n`;
+        }
+
+        alert(paramsValues);
+        // Reset the form
+        document.getElementById('parametersContainer').style.display = 'none';
+        document.getElementById('optionsContainer').style.display = 'flex'; // Show options again
+    }
+</script>
+
+</body>
+</html>
